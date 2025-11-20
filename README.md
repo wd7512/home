@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+## Build and Deploy Instructions
 
-This contains everything you need to run your app locally.
+1. Run `npm install` to install all dependencies.
 
-View your app in AI Studio: https://ai.studio/apps/drive/13xaUk2N1Yz5QvUV9A7pOTDWOr_k-CAkI
+2. To start the development server, run:
+	```
+	npm run dev
+	```
 
-## Run Locally
+3. To build the app for production, run:
+	```
+	npm run build
+	```
 
-**Prerequisites:**  Node.js
+4. If you want to deploy to GitHub Pages, make sure `gh-pages` is installed and configured in your `package.json`. Then run:
+	```
+	npm run deploy
+	```
 
+This will build and deploy your app to GitHub Pages at:
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```
+https://wd7512.github.io/home/
+```
+
+If you get an error running `npm run deploy`, try running:
+
+```
+npm run
+```
+
+to list all available scripts and verify "deploy" is present.
+
+If it’s missing, double-check you saved the edited package.json and are in the correct project folder.
