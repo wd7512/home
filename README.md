@@ -1,5 +1,5 @@
 
-[website](https://wd7512.github.io/home/)
+## [Personal Website](https://wd7512.github.io/home/)
 
 ## Build and Deploy Instructions
 
