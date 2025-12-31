@@ -53,7 +53,7 @@ const Hero: React.FC = () => {
             transition={{ delay: 0.2 }}
           >
              <span className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-wider text-slate-500 uppercase bg-white/80 rounded-full border border-slate-200 shadow-sm">
-              Machine Learning Researcher
+              Actively Looking for Collaborators
             </span>
           </motion.div>
          
