@@ -5,7 +5,7 @@
 
 1. Run `npm install` to install all dependencies.
 
-2. To start the development server, run:
+2. To start the development server, run (not sure ive set this up yet):
 	```
 	npm run dev
 	```
