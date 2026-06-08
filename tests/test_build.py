@@ -58,7 +58,18 @@ def test_load_section_populated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert section[1][0]["title"] == "B"
 
 
-def test_build_html_contains_sections() -> None:
+@pytest.fixture
+def all_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("build.CONFIG", {
+        "experience": True,
+        "education": True,
+        "research": True,
+        "personal_projects": True,
+        "skills": True,
+    })
+
+
+def test_build_html_contains_sections(all_enabled: None) -> None:
     html = build_html()
     assert "<title>" in html
     assert 'id="experience"' in html
@@ -69,7 +80,7 @@ def test_build_html_contains_sections() -> None:
     assert "section-title" in html
 
 
-def test_projects_without_links_included(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_projects_without_links_included(all_enabled: None, monkeypatch: pytest.MonkeyPatch) -> None:
     from build import CONTENT_DIR
 
     real_projects = list((CONTENT_DIR / "projects").glob("*.md"))

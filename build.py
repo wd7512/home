@@ -36,34 +36,37 @@ def load_section(dir_name: str) -> list[tuple[dict, str]]:
     return [parse_md(f) for f in files]
 
 
+def load_config() -> dict:
+    path = CONTENT_DIR / "config.yaml"
+    defaults = {
+        "experience": True,
+        "education": True,
+        "research": True,
+        "personal_projects": True,
+        "skills": True,
+    }
+    if path.exists():
+        cfg = yaml.safe_load(path.read_text()) or {}
+        for key, val in cfg.get("sections", {}).items():
+            if key in defaults:
+                defaults[key] = val
+    return defaults
+
+
+CONFIG = load_config()
+
+
 def build_html() -> str:
-    # Personal
     personal, _ = parse_md(CONTENT_DIR / "personal.md")
-
-    # Experience
-    experience = load_section("experience")
-
-    # Education
-    education = load_section("education")
-
-    # Projects (research + personal mixed — research projects have "links" in meta)
-    all_projects = load_section("projects")
-    research_projects = [(m, b) for m, b in all_projects if "links" in m]
-    personal_projects = [(m, b) for m, b in all_projects if "links" not in m]
-
-    # Publications
-    publications = load_section("publications")
-
-    # Skills
-    skills = load_section("skills")
-
     p = personal
+    cfg = CONFIG
 
-    # ── Experience ──
     exp_items = ""
-    for meta, body in experience:
-        descs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
-        exp_items += f"""
+    if cfg.get("experience", True):
+        experience = load_section("experience")
+        for meta, body in experience:
+            descs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
+            exp_items += f"""
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="card">
@@ -74,11 +77,12 @@ def build_html() -> str:
           </div>
         </div>"""
 
-    # ── Education ──
     edu_items = ""
-    for meta, body in education:
-        achvs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
-        edu_items += f"""
+    if cfg.get("education", True):
+        education = load_section("education")
+        for meta, body in education:
+            achvs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
+            edu_items += f"""
         <div class="card">
           <div class="edu-header">
             <div>
@@ -91,15 +95,20 @@ def build_html() -> str:
           <ul>{achvs}</ul>
         </div>"""
 
-    # ── Research Projects ──
+    all_projects = load_section("projects")
+    research_projects = [(m, b) for m, b in all_projects if "links" in m]
+    personal_projects = [(m, b) for m, b in all_projects if "links" not in m]
+
     research_items = ""
-    for meta, body in research_projects:
-        tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
-        links = "".join(
-            f'<a href="{link["url"]}" class="link-btn" target="_blank" rel="noopener">{link["label"]}</a>'
-            for link in meta.get("links", [])
-        )
-        research_items += f"""
+    pub_items = ""
+    if cfg.get("research", True):
+        for meta, body in research_projects:
+            tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
+            links = "".join(
+                f'<a href="{link["url"]}" class="link-btn" target="_blank" rel="noopener">{link["label"]}</a>'
+                for link in meta.get("links", [])
+            )
+            research_items += f"""
         <div class="card">
           <div class="card-header">
             <h4>{meta['title']}</h4>
@@ -110,33 +119,14 @@ def build_html() -> str:
           <div class="links">{links}</div>
         </div>"""
 
-    # ── Personal Projects ──
-    proj_items = ""
-    for meta, body in personal_projects:
-        tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
-        link_html = ""
-        if "link" in meta:
-            link_html = f'<a href="{meta["link"]}" class="link-btn" target="_blank" rel="noopener">View →</a>'
-        proj_items += f"""
-        <div class="card project-card">
-          <div class="card-header">
-            <h4>{meta['title']}</h4>
-            <span class="period">{meta.get('year', '')}</span>
-          </div>
-          <p>{body}</p>
-          <div class="tags">{tags}</div>
-          {link_html}
-        </div>"""
-
-    # ── Publications ──
-    pub_items = ""
-    for meta, body in publications:
-        status = meta.get("status", "")
-        status_class = "published" if status == "Published" else "pending"
-        title = meta.get("title", "")
-        link = meta.get("link", "")
-        title_html = f'<a href="{link}" target="_blank" rel="noopener">{title}</a>' if link else title
-        pub_items += f"""
+        publications = load_section("publications")
+        for meta, body in publications:
+            status = meta.get("status", "")
+            status_class = "published" if status == "Published" else "pending"
+            title = meta.get("title", "")
+            link = meta.get("link", "")
+            title_html = f'<a href="{link}" target="_blank" rel="noopener">{title}</a>' if link else title
+            pub_items += f"""
         <div class="pub-item">
           <div class="pub-top">
             <h4>{title_html}</h4>
@@ -149,16 +139,103 @@ def build_html() -> str:
           </div>
         </div>"""
 
-    # ── Skills ──
+    proj_items = ""
+    if cfg.get("personal_projects", True):
+        for meta, body in personal_projects:
+            tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
+            link_html = ""
+            if "link" in meta:
+                link_html = f'<a href="{meta["link"]}" class="link-btn" target="_blank" rel="noopener">View →</a>'
+            proj_items += f"""
+        <div class="card project-card">
+          <div class="card-header">
+            <h4>{meta['title']}</h4>
+            <span class="period">{meta.get('year', '')}</span>
+          </div>
+          <p>{body}</p>
+          <div class="tags">{tags}</div>
+          {link_html}
+        </div>"""
+
     skill_sections = ""
-    for meta, body in skills:
-        category = meta.get("category", "")
-        items = "".join(f'<span class="skill">{s}</span>' for s in meta.get("skills", []))
-        skill_sections += f"""
+    if cfg.get("skills", True):
+        skills = load_section("skills")
+        for meta, body in skills:
+            category = meta.get("category", "")
+            items = "".join(f'<span class="skill">{s}</span>' for s in meta.get("skills", []))
+            skill_sections += f"""
         <div class="skill-group">
           <h3>{category}</h3>
           <div class="skills">{items}</div>
         </div>"""
+
+    nav_links = ""
+    if cfg.get("experience", True):
+        nav_links += '\n      <a href="#experience">Experience</a>'
+    if cfg.get("education", True):
+        nav_links += '\n      <a href="#education">Education</a>'
+    if cfg.get("research", True):
+        nav_links += '\n      <a href="#research">Research</a>'
+    if cfg.get("personal_projects", True):
+        nav_links += '\n      <a href="#projects">Projects</a>'
+    if cfg.get("skills", True):
+        nav_links += '\n      <a href="#skills">Skills</a>'
+
+    sections_html = ""
+
+    if cfg.get("experience", True):
+        sections_html += f"""
+<section id="experience">
+  <div class="container">
+    <h2 class="section-title">Experience</h2>
+    <div class="timeline">{exp_items}</div>
+  </div>
+</section>"""
+
+    if cfg.get("education", True):
+        sections_html += f"""
+<section id="education">
+  <div class="container">
+    <h2 class="section-title">Education</h2>
+    <div class="edu-grid">{edu_items}</div>
+  </div>
+</section>"""
+
+    if cfg.get("research", True):
+        sections_html += f"""
+<section id="research">
+  <div class="container">
+    <h2 class="section-title">Research & Publications</h2>
+    <div class="research-grid">
+      <div>
+        <h3 style="color:var(--text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;">Publications</h3>
+        {pub_items}
+      </div>
+      <div>
+        <h3 style="color:var(--text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;">Research Projects</h3>
+        {research_items}
+      </div>
+    </div>
+  </div>
+</section>"""
+
+    if cfg.get("personal_projects", True):
+        sections_html += f"""
+<section id="projects">
+  <div class="container">
+    <h2 class="section-title">Personal Projects</h2>
+    <div class="projects-grid">{proj_items}</div>
+  </div>
+</section>"""
+
+    if cfg.get("skills", True):
+        sections_html += f"""
+<section id="skills">
+  <div class="container">
+    <h2 class="section-title">Technical Skills</h2>
+    <div class="skills-grid">{skill_sections}</div>
+  </div>
+</section>"""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -353,13 +430,7 @@ def build_html() -> str:
 <nav>
   <div class="container">
     <a href="#hero" class="logo">{p['name']}</a>
-    <div class="links">
-      <a href="#experience">Experience</a>
-      <a href="#education">Education</a>
-      <a href="#research">Research</a>
-      <a href="#projects">Projects</a>
-      <a href="#skills">Skills</a>
-    </div>
+    <div class="links">{nav_links}</div>
   </div>
 </nav>
 
@@ -375,49 +446,7 @@ def build_html() -> str:
   </div>
 </section>
 
-<section id="experience">
-  <div class="container">
-    <h2 class="section-title">Experience</h2>
-    <div class="timeline">{exp_items}</div>
-  </div>
-</section>
-
-<section id="education">
-  <div class="container">
-    <h2 class="section-title">Education</h2>
-    <div class="edu-grid">{edu_items}</div>
-  </div>
-</section>
-
-<section id="research">
-  <div class="container">
-    <h2 class="section-title">Research & Publications</h2>
-    <div class="research-grid">
-      <div>
-        <h3 style="color:var(--text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;">Publications</h3>
-        {pub_items}
-      </div>
-      <div>
-        <h3 style="color:var(--text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;">Research Projects</h3>
-        {research_items}
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="projects">
-  <div class="container">
-    <h2 class="section-title">Personal Projects</h2>
-    <div class="projects-grid">{proj_items}</div>
-  </div>
-</section>
-
-<section id="skills">
-  <div class="container">
-    <h2 class="section-title">Technical Skills</h2>
-    <div class="skills-grid">{skill_sections}</div>
-  </div>
-</section>
+{sections_html}
 
 <footer>
   <div class="container">
