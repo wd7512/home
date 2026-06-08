@@ -1,37 +1,28 @@
+# William Dennis — Portfolio
 
-## [Personal Website](https://wd7512.github.io/home/)
+Static portfolio site built from [`cv.yaml`](cv.yaml) using a simple Python build script.
 
-## Build and Deploy Instructions
+## How it works
 
-1. Run `npm install` to install all dependencies.
+1. Edit `cv.yaml` with your latest CV data
+2. Run `python3 build.py` to generate `dist/index.html`
+3. Push to deploy (GitHub Pages serves from `dist/`)
 
-2. To start the development server, run (not sure ive set this up yet):
-	```
-	npm run dev
-	```
+## Build
 
-3. To build the app for production, run:
-	```
-	npm run build
-	```
-
-4. If you want to deploy to GitHub Pages, make sure `gh-pages` is installed and configured in your `package.json`. Then run:
-	```
-	npm run deploy
-	```
-
-This will build and deploy your app to GitHub Pages at:
-
-```
-https://wd7512.github.io/home/
+```bash
+python3 build.py          # build to dist/
+python3 build.py --serve  # build and open in browser
 ```
 
-If you get an error running `npm run deploy`, try running:
+## Deploy
+
+The site is deployed to GitHub Pages. Push to `main` and the `dist/index.html` is served.
+
+## Structure
 
 ```
-npm run
+cv.yaml          — Ground truth CV data (edit this)
+build.py         — Static site generator (Python, no dependencies beyond pyyaml)
+dist/index.html  — Generated output (single file, inline CSS)
 ```
-
-to list all available scripts and verify "deploy" is present.
-
-If it’s missing, double-check you saved the edited package.json and are in the correct project folder.
