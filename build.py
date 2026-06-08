@@ -1,137 +1,164 @@
 #!/usr/bin/env python3
-"""Build the static portfolio site from cv.yaml.
+"""Build the static portfolio site from Markdown content files.
 
 Usage:
-    python build.py          # build to dist/
-    python build.py --serve  # build and open in browser
+    python3 build.py          # build to dist/
+    python3 build.py --serve  # build and open in browser
 """
 
 import argparse
+import glob
 import os
-import shutil
-import sys
+import re
 from pathlib import Path
 
 import yaml
 
 SCRIPT_DIR = Path(__file__).parent
+CONTENT_DIR = SCRIPT_DIR / "content"
 DIST_DIR = SCRIPT_DIR / "dist"
-CV_PATH = SCRIPT_DIR / "cv.yaml"
 
 
-def load_cv() -> dict:
-    with open(CV_PATH, "r") as f:
-        return yaml.safe_load(f)
+def parse_md(path: Path) -> tuple[dict, str]:
+    """Parse a Markdown file with YAML frontmatter. Returns (meta, body)."""
+    text = path.read_text()
+    m = re.match(r"^---\n(.*?)\n---\n?(.*)", text, re.DOTALL)
+    if m:
+        meta = yaml.safe_load(m.group(1)) or {}
+        body = m.group(2).strip()
+    else:
+        meta = {}
+        body = text.strip()
+    return meta, body
 
 
-def build_html(cv: dict) -> str:
-    p = cv["personal"]
-    exp = cv["experience"]
-    edu = cv["education"]
-    research = cv["research_projects"]
-    projects = cv["personal_projects"]
-    pubs = cv["publications"]
-    skills = cv["skills"]
+def load_section(dir_name: str) -> list[tuple[dict, str]]:
+    """Load all .md files in a content subdirectory, sorted by filename."""
+    files = sorted((CONTENT_DIR / dir_name).glob("*.md"))
+    return [parse_md(f) for f in files]
 
-    # Experience items
+
+def build_html() -> str:
+    # Personal
+    personal, _ = parse_md(CONTENT_DIR / "personal.md")
+
+    # Experience
+    experience = load_section("experience")
+
+    # Education
+    education = load_section("education")
+
+    # Projects (research + personal mixed — research projects have "links" in meta)
+    all_projects = load_section("projects")
+    research_projects = [(m, b) for m, b in all_projects if "links" in m]
+    personal_projects = [(m, b) for m, b in all_projects if "link" in m and "links" not in m]
+
+    # Publications
+    publications = load_section("publications")
+
+    # Skills
+    skills = load_section("skills")
+
+    p = personal
+
+    # ── Experience ──
     exp_items = ""
-    for i, job in enumerate(exp):
-        descs = "".join(f"<li>{d}</li>" for d in job["description"])
+    for meta, body in experience:
+        descs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
         exp_items += f"""
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="card">
-            <h3>{job['role']}</h3>
-            <div class="meta">{job['company']} · {job['location']}</div>
-            <div class="period">{job['period']}</div>
+            <h3>{meta.get('role', '')}</h3>
+            <div class="meta">{meta.get('company', '')} · {meta.get('location', '')}</div>
+            <div class="period">{meta.get('period', '')}</div>
             <ul>{descs}</ul>
           </div>
         </div>"""
 
-    # Education items
+    # ── Education ──
     edu_items = ""
-    for e in edu:
-        achvs = "".join(f"<li>{a}</li>" for a in e["achievements"])
+    for meta, body in education:
+        achvs = "".join(f"<li>{line[2:]}</li>" for line in body.splitlines() if line.startswith("- "))
         edu_items += f"""
         <div class="card">
           <div class="edu-header">
             <div>
-              <h3>{e['institution']}</h3>
-              <div class="meta">{e['degree']}</div>
+              <h3>{meta.get('institution', '')}</h3>
+              <div class="meta">{meta.get('degree', '')}</div>
             </div>
-            <span class="period">{e['period']}</span>
+            <span class="period">{meta.get('period', '')}</span>
           </div>
-          <div class="badge">{e['details']}</div>
+          <div class="badge">{meta.get('details', '')}</div>
           <ul>{achvs}</ul>
         </div>"""
 
-    # Research projects
+    # ── Research Projects ──
     research_items = ""
-    for r in research:
-        tags = "".join(f'<span class="tag">{t}</span>' for t in r["tags"])
-        links = ""
-        if "links" in r:
-            links = "".join(
-                f'<a href="{l["url"]}" class="link-btn" target="_blank" rel="noopener">{l["label"]}</a>'
-                for l in r["links"]
-            )
+    for meta, body in research_projects:
+        tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
+        links = "".join(
+            f'<a href="{l["url"]}" class="link-btn" target="_blank" rel="noopener">{l["label"]}</a>'
+            for l in meta.get("links", [])
+        )
         research_items += f"""
         <div class="card">
           <div class="card-header">
-            <h4>{r['title']}</h4>
-            <span class="period">{r['year']}</span>
+            <h4>{meta['title']}</h4>
+            <span class="period">{meta.get('year', '')}</span>
           </div>
-          <p>{r['description']}</p>
+          <p>{body}</p>
           <div class="tags">{tags}</div>
-          {f'<div class="links">{links}</div>' if links else ""}
+          <div class="links">{links}</div>
         </div>"""
 
-    # Personal projects
+    # ── Personal Projects ──
     proj_items = ""
-    for pr in projects:
-        tags = "".join(f'<span class="tag">{t}</span>' for t in pr["tags"])
+    for meta, body in personal_projects:
+        tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
         link_html = ""
-        if "link" in pr:
-            link_html = f'<a href="{pr["link"]}" class="link-btn" target="_blank" rel="noopener">View →</a>'
+        if "link" in meta:
+            link_html = f'<a href="{meta["link"]}" class="link-btn" target="_blank" rel="noopener">View →</a>'
         proj_items += f"""
         <div class="card project-card">
           <div class="card-header">
-            <h4>{pr['title']}</h4>
-            <span class="period">{pr['year']}</span>
+            <h4>{meta['title']}</h4>
+            <span class="period">{meta.get('year', '')}</span>
           </div>
-          <p>{pr['description']}</p>
+          <p>{body}</p>
           <div class="tags">{tags}</div>
           {link_html}
         </div>"""
 
-    # Publications
+    # ── Publications ──
     pub_items = ""
-    for pub in pubs:
-        status_class = "published" if pub.get("status") == "Published" else "pending"
-        if pub.get("link"):
-            title_html = '<a href="' + pub["link"] + '" target="_blank" rel="noopener">' + pub["title"] + '</a>'
-        else:
-            title_html = pub["title"]
+    for meta, body in publications:
+        status = meta.get("status", "")
+        status_class = "published" if status == "Published" else "pending"
+        title = meta.get("title", "")
+        link = meta.get("link", "")
+        title_html = f'<a href="{link}" target="_blank" rel="noopener">{title}</a>' if link else title
         pub_items += f"""
         <div class="pub-item">
           <div class="pub-top">
             <h4>{title_html}</h4>
-            <span class="status {status_class}">{pub.get('status', '')}</span>
+            <span class="status {status_class}">{status}</span>
           </div>
-          <p class="authors">{pub['authors']}</p>
+          <p class="authors">{meta.get('authors', '')}</p>
           <div class="pub-bottom">
-            <span class="venue">{pub['venue']}</span>
-            <span class="period">{pub['date']}</span>
+            <span class="venue">{meta.get('venue', '')}</span>
+            <span class="period">{meta.get('date', '')}</span>
           </div>
         </div>"""
 
-    # Skills
+    # ── Skills ──
     skill_sections = ""
-    for s in skills:
-        items = "".join(f'<span class="skill">{sk}</span>' for sk in s["items"])
+    for meta, body in skills:
+        category = meta.get("category", "")
+        items = "".join(f'<span class="skill">{s}</span>' for s in meta.get("skills", []))
         skill_sections += f"""
         <div class="skill-group">
-          <h3>{s['category']}</h3>
+          <h3>{category}</h3>
           <div class="skills">{items}</div>
         </div>"""
 
@@ -177,7 +204,6 @@ def build_html(cv: dict) -> str:
     a {{ color: var(--accent); text-decoration: none; }}
     a:hover {{ text-decoration: underline; }}
 
-    /* ── Layout ── */
     .container {{ max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }}
     section {{ padding: 80px 0; }}
     .section-title {{
@@ -186,7 +212,6 @@ def build_html(cv: dict) -> str:
       display: inline-block;
     }}
 
-    /* ── Nav ── */
     nav {{
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: rgba(15, 23, 42, 0.85);
@@ -203,7 +228,6 @@ def build_html(cv: dict) -> str:
     nav .links a {{ color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }}
     nav .links a:hover {{ color: var(--text); text-decoration: none; }}
 
-    /* ── Hero ── */
     #hero {{
       min-height: 100vh; display: flex; align-items: center;
       padding-top: 56px;
@@ -222,7 +246,6 @@ def build_html(cv: dict) -> str:
     .btn-outline {{ border: 1px solid var(--border); color: var(--text); }}
     .btn-outline:hover {{ border-color: var(--text-muted); text-decoration: none; }}
 
-    /* ── Cards ── */
     .card {{
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -244,7 +267,6 @@ def build_html(cv: dict) -> str:
       margin-bottom: 8px;
     }}
 
-    /* ── Experience timeline ── */
     .timeline {{ position: relative; }}
     .timeline::before {{
       content: ''; position: absolute; left: 19px; top: 0; bottom: 0;
@@ -257,7 +279,6 @@ def build_html(cv: dict) -> str:
       background: var(--bg-card); border: 3px solid var(--accent-dim);
     }}
 
-    /* ── Education ── */
     .edu-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }}
     .edu-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }}
     .badge {{
@@ -267,16 +288,13 @@ def build_html(cv: dict) -> str:
       border-radius: 99px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
     }}
 
-    /* ── Research ── */
     .research-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }}
     @media (max-width: 768px) {{ .research-grid {{ grid-template-columns: 1fr; }} }}
 
-    /* ── Projects ── */
     .projects-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }}
     .project-card {{ display: flex; flex-direction: column; }}
     .project-card p {{ flex-grow: 1; }}
 
-    /* ── Tags & links ── */
     .tags {{ display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }}
     .tag {{
       padding: 2px 10px; background: rgba(129, 140, 248, 0.1);
@@ -292,7 +310,6 @@ def build_html(cv: dict) -> str:
     }}
     .link-btn:hover {{ background: rgba(129, 140, 248, 0.2); text-decoration: none; }}
 
-    /* ── Publications ── */
     .pub-item {{
       padding: 20px; border-left: 3px solid var(--accent-dim);
       background: var(--bg-card); border-radius: 0 var(--radius) var(--radius) 0;
@@ -312,7 +329,6 @@ def build_html(cv: dict) -> str:
     .status.published {{ background: rgba(52, 211, 153, 0.1); color: var(--success); }}
     .status.pending {{ background: rgba(251, 191, 36, 0.1); color: var(--pending); }}
 
-    /* ── Skills ── */
     .skills-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; }}
     .skill-group h3 {{ font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }}
     .skills {{ display: flex; flex-wrap: wrap; gap: 8px; }}
@@ -321,10 +337,8 @@ def build_html(cv: dict) -> str:
       border-radius: 8px; font-size: 0.85rem; color: var(--text);
     }}
 
-    /* ── Footer ── */
     footer {{ padding: 40px 0; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 0.85rem; }}
 
-    /* ── Responsive ── */
     @media (max-width: 640px) {{
       #hero h1 {{ font-size: 2rem; }}
       nav .links {{ gap: 16px; }}
@@ -351,7 +365,6 @@ def build_html(cv: dict) -> str:
   </div>
 </nav>
 
-<!-- Hero -->
 <section id="hero">
   <div class="container">
     <h1>{p['name']}</h1>
@@ -364,7 +377,6 @@ def build_html(cv: dict) -> str:
   </div>
 </section>
 
-<!-- Experience -->
 <section id="experience">
   <div class="container">
     <h2 class="section-title">Experience</h2>
@@ -372,7 +384,6 @@ def build_html(cv: dict) -> str:
   </div>
 </section>
 
-<!-- Education -->
 <section id="education">
   <div class="container">
     <h2 class="section-title">Education</h2>
@@ -380,7 +391,6 @@ def build_html(cv: dict) -> str:
   </div>
 </section>
 
-<!-- Research & Publications -->
 <section id="research">
   <div class="container">
     <h2 class="section-title">Research & Publications</h2>
@@ -397,7 +407,6 @@ def build_html(cv: dict) -> str:
   </div>
 </section>
 
-<!-- Personal Projects -->
 <section id="projects">
   <div class="container">
     <h2 class="section-title">Personal Projects</h2>
@@ -405,7 +414,6 @@ def build_html(cv: dict) -> str:
   </div>
 </section>
 
-<!-- Skills -->
 <section id="skills">
   <div class="container">
     <h2 class="section-title">Technical Skills</h2>
@@ -415,7 +423,7 @@ def build_html(cv: dict) -> str:
 
 <footer>
   <div class="container">
-    <p>© {p['name']} · Built from <a href="https://github.com/wd7512/home/blob/main/cv.yaml">cv.yaml</a></p>
+    <p>© {p['name']} · Built from <a href="https://github.com/wd7512/home/blob/main/content/">Markdown content</a></p>
   </div>
 </footer>
 
@@ -424,8 +432,7 @@ def build_html(cv: dict) -> str:
 
 
 def build():
-    cv = load_cv()
-    html = build_html(cv)
+    html = build_html()
     DIST_DIR.mkdir(exist_ok=True)
     out = DIST_DIR / "index.html"
     out.write_text(html)
@@ -434,7 +441,7 @@ def build():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Build static portfolio from cv.yaml")
+    parser = argparse.ArgumentParser(description="Build static portfolio from Markdown content")
     parser.add_argument("--serve", action="store_true", help="Build and open in browser")
     args = parser.parse_args()
     build()

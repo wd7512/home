@@ -40,7 +40,6 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    /* ── Layout ── */
     .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
     section { padding: 80px 0; }
     .section-title {
@@ -49,7 +48,6 @@
       display: inline-block;
     }
 
-    /* ── Nav ── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: rgba(15, 23, 42, 0.85);
@@ -66,7 +64,6 @@
     nav .links a { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
     nav .links a:hover { color: var(--text); text-decoration: none; }
 
-    /* ── Hero ── */
     #hero {
       min-height: 100vh; display: flex; align-items: center;
       padding-top: 56px;
@@ -85,7 +82,6 @@
     .btn-outline { border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--text-muted); text-decoration: none; }
 
-    /* ── Cards ── */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -107,7 +103,6 @@
       margin-bottom: 8px;
     }
 
-    /* ── Experience timeline ── */
     .timeline { position: relative; }
     .timeline::before {
       content: ''; position: absolute; left: 19px; top: 0; bottom: 0;
@@ -120,7 +115,6 @@
       background: var(--bg-card); border: 3px solid var(--accent-dim);
     }
 
-    /* ── Education ── */
     .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
     .edu-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .badge {
@@ -130,16 +124,13 @@
       border-radius: 99px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
     }
 
-    /* ── Research ── */
     .research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
     @media (max-width: 768px) { .research-grid { grid-template-columns: 1fr; } }
 
-    /* ── Projects ── */
     .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
     .project-card { display: flex; flex-direction: column; }
     .project-card p { flex-grow: 1; }
 
-    /* ── Tags & links ── */
     .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .tag {
       padding: 2px 10px; background: rgba(129, 140, 248, 0.1);
@@ -155,7 +146,6 @@
     }
     .link-btn:hover { background: rgba(129, 140, 248, 0.2); text-decoration: none; }
 
-    /* ── Publications ── */
     .pub-item {
       padding: 20px; border-left: 3px solid var(--accent-dim);
       background: var(--bg-card); border-radius: 0 var(--radius) var(--radius) 0;
@@ -175,7 +165,6 @@
     .status.published { background: rgba(52, 211, 153, 0.1); color: var(--success); }
     .status.pending { background: rgba(251, 191, 36, 0.1); color: var(--pending); }
 
-    /* ── Skills ── */
     .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; }
     .skill-group h3 { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .skills { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -184,10 +173,8 @@
       border-radius: 8px; font-size: 0.85rem; color: var(--text);
     }
 
-    /* ── Footer ── */
     footer { padding: 40px 0; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 0.85rem; }
 
-    /* ── Responsive ── */
     @media (max-width: 640px) {
       #hero h1 { font-size: 2rem; }
       nav .links { gap: 16px; }
@@ -214,7 +201,6 @@
   </div>
 </nav>
 
-<!-- Hero -->
 <section id="hero">
   <div class="container">
     <h1>William Dennis</h1>
@@ -227,7 +213,6 @@
   </div>
 </section>
 
-<!-- Experience -->
 <section id="experience">
   <div class="container">
     <h2 class="section-title">Experience</h2>
@@ -255,7 +240,7 @@
           <div class="card">
             <h3>Signal Processing Engineer</h3>
             <div class="meta">Milbotix · Bristol Robotics Lab, UK</div>
-            <div class="period">Feb 2024 – Oct 2024</div>
+            <div class="period">Jun 2023 – Oct 2024</div>
             <ul><li>Developed a two-stage machine learning pipeline optimised for use on embedded devices using accelerometer filtering and novel Fourier features.</li><li>Internship extended twice to aid the development of SmartSocks© into a medical grade device.</li><li>Achieved an error rate of <3bpm, allowing the device to be medical grade.</li></ul>
           </div>
         </div>
@@ -271,22 +256,10 @@
   </div>
 </section>
 
-<!-- Education -->
 <section id="education">
   <div class="container">
     <h2 class="section-title">Education</h2>
     <div class="edu-grid">
-        <div class="card">
-          <div class="edu-header">
-            <div>
-              <h3>University of Bristol</h3>
-              <div class="meta">MSc Data Science</div>
-            </div>
-            <span class="period">Sep 2023 – Sep 2024</span>
-          </div>
-          <div class="badge">Distinction (Top 3 of cohort)</div>
-          <ul><li>Deployed distributed cloud architectures on AWS using DynamoDB, SQS, SNS, S3 and EC2 services.</li><li>Produced a report on migration patterns of people aged 20-25 in the UK utilising data visualisation.</li><li>Member of Google Developer Student Club and Quantitative Analyst at Bristol Trading Society.</li></ul>
-        </div>
         <div class="card">
           <div class="edu-header">
             <div>
@@ -297,11 +270,21 @@
           </div>
           <div class="badge">Scientific Computing (84%) and Machine Learning (91%)</div>
           <ul><li>Built websites in Python to support startups in Setsquared using Django.</li><li>2019/2020 poker society winner.</li></ul>
+        </div>
+        <div class="card">
+          <div class="edu-header">
+            <div>
+              <h3>University of Bristol</h3>
+              <div class="meta">MSc Data Science</div>
+            </div>
+            <span class="period">Sep 2023 – Sep 2024</span>
+          </div>
+          <div class="badge">Distinction (Top 3 of cohort)</div>
+          <ul><li>Deployed distributed cloud architectures on AWS using DynamoDB, SQS, SNS, S3 and EC2 services.</li><li>Produced a report on migration patterns of people aged 20-25 in the UK utilising data visualisation.</li><li>Member of Google Developer Student Club and Quantitative Analyst at Bristol Trading Society.</li></ul>
         </div></div>
   </div>
 </section>
 
-<!-- Research & Publications -->
 <section id="research">
   <div class="container">
     <h2 class="section-title">Research & Publications</h2>
@@ -311,35 +294,35 @@
         
         <div class="pub-item">
           <div class="pub-top">
-            <h4><a href="https://research-information.bris.ac.uk/en/publications/a-framework-for-developing-robust-machine-learning-models-in-hars/" target="_blank" rel="noopener">A Framework for Developing Robust Machine Learning Models in Harsh Environments: A Review of CNN Design Choices</a></h4>
-            <span class="status published">Published</span>
+            <h4></h4>
+            <span class="status pending"></span>
           </div>
-          <p class="authors">William Dennis and James Pope</p>
+          <p class="authors"></p>
           <div class="pub-bottom">
-            <span class="venue">ICAART 2025 (17th International Conference on Agents and Artificial Intelligence)</span>
-            <span class="period">Feb 2025</span>
+            <span class="venue"></span>
+            <span class="period"></span>
           </div>
         </div>
         <div class="pub-item">
           <div class="pub-top">
-            <h4>Robust Machine Learning for Harsh Environments: A Framework and Evaluation of Key Architectural Choices</h4>
-            <span class="status published">Published</span>
+            <h4></h4>
+            <span class="status pending"></span>
           </div>
-          <p class="authors">William Dennis and James Pope</p>
+          <p class="authors"></p>
           <div class="pub-bottom">
-            <span class="venue">Lecture Notes in AI, LNAI</span>
-            <span class="period">Dec 2025</span>
+            <span class="venue"></span>
+            <span class="period"></span>
           </div>
         </div>
         <div class="pub-item">
           <div class="pub-top">
-            <h4>Classification of signal quality from ankle-based photoplethysmographic signals using machine learning</h4>
-            <span class="status pending">Pending</span>
+            <h4></h4>
+            <span class="status pending"></span>
           </div>
-          <p class="authors">William Dennis</p>
+          <p class="authors"></p>
           <div class="pub-bottom">
-            <span class="venue">Publication Pending</span>
-            <span class="period">Pending</span>
+            <span class="venue"></span>
+            <span class="period"></span>
           </div>
         </div>
       </div>
@@ -355,33 +338,23 @@
           <div class="tags"><span class="tag">PyTorch</span><span class="tag">Research</span><span class="tag">Computer Vision</span></div>
           <div class="links"><a href="https://github.com/wd7512/seu-injection-framework" class="link-btn" target="_blank" rel="noopener">Framework (GitHub)</a><a href="https://wd7512.github.io/robust-ml-in-harsh-environments-explained/" class="link-btn" target="_blank" rel="noopener">Interactive Explanation</a></div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <h4>Classification of Signal Quality</h4>
-            <span class="period">2024</span>
-          </div>
-          <p>Developed novel time-series features for classification of photoplethysmography signal segments. Tested a range of ML architectures and hyperparameters using AUC+ROC metrics.</p>
-          <div class="tags"><span class="tag">Signal Processing</span><span class="tag">Time-Series</span><span class="tag">Medical ML</span></div>
-          
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Personal Projects -->
 <section id="projects">
   <div class="container">
     <h2 class="section-title">Personal Projects</h2>
     <div class="projects-grid">
         <div class="card project-card">
           <div class="card-header">
-            <h4>Evolutionary Snake AI</h4>
-            <span class="period">2021</span>
+            <h4>AI Trader</h4>
+            <span class="period">2023</span>
           </div>
-          <p>Built an evolutionary learning algorithm from scratch to play snake at a human like level using neural networks.</p>
-          <div class="tags"><span class="tag">Genetic Algorithms</span><span class="tag">Neural Networks</span></div>
-          <a href="https://github.com/wd7512/Snake-Learning" class="link-btn" target="_blank" rel="noopener">View →</a>
+          <p>Reinforcement learning based AI trader using learntools on linear features.</p>
+          <div class="tags"><span class="tag">RL</span><span class="tag">Finance</span></div>
+          <a href="https://github.com/wd7512" class="link-btn" target="_blank" rel="noopener">View →</a>
         </div>
         <div class="card project-card">
           <div class="card-header">
@@ -403,12 +376,12 @@
         </div>
         <div class="card project-card">
           <div class="card-header">
-            <h4>AI Trader</h4>
-            <span class="period">2023</span>
+            <h4>Evolutionary Snake AI</h4>
+            <span class="period">2021</span>
           </div>
-          <p>Reinforcement learning based AI trader using learntools on linear features.</p>
-          <div class="tags"><span class="tag">RL</span><span class="tag">Finance</span></div>
-          <a href="https://github.com/wd7512" class="link-btn" target="_blank" rel="noopener">View →</a>
+          <p>Built an evolutionary learning algorithm from scratch to play snake at a human like level using neural networks.</p>
+          <div class="tags"><span class="tag">Genetic Algorithms</span><span class="tag">Neural Networks</span></div>
+          <a href="https://github.com/wd7512/Snake-Learning" class="link-btn" target="_blank" rel="noopener">View →</a>
         </div>
         <div class="card project-card">
           <div class="card-header">
@@ -422,29 +395,28 @@
   </div>
 </section>
 
-<!-- Skills -->
 <section id="skills">
   <div class="container">
     <h2 class="section-title">Technical Skills</h2>
     <div class="skills-grid">
         <div class="skill-group">
-          <h3>Languages</h3>
-          <div class="skills"><span class="skill">Python (10 years)</span><span class="skill">SQL</span><span class="skill">C#</span><span class="skill">R</span><span class="skill">MATLAB</span><span class="skill">Haskell</span><span class="skill">TypeScript</span></div>
+          <h3>Cloud & Tools</h3>
+          <div class="skills"><span class="skill">AWS</span><span class="skill">Google Cloud</span><span class="skill">Docker</span><span class="skill">Git</span><span class="skill">JIRA</span><span class="skill">Agile</span></div>
         </div>
         <div class="skill-group">
           <h3>Libraries & Frameworks</h3>
           <div class="skills"><span class="skill">PyTorch</span><span class="skill">TensorFlow</span><span class="skill">Scikit-learn</span><span class="skill">Pandas</span><span class="skill">NumPy</span><span class="skill">OpenCV</span><span class="skill">Streamlit</span><span class="skill">Django</span></div>
         </div>
         <div class="skill-group">
-          <h3>Cloud & Tools</h3>
-          <div class="skills"><span class="skill">AWS</span><span class="skill">Google Cloud</span><span class="skill">Docker</span><span class="skill">Git</span><span class="skill">JIRA</span><span class="skill">Agile</span></div>
+          <h3>Languages</h3>
+          <div class="skills"><span class="skill">Python (10 years)</span><span class="skill">SQL</span><span class="skill">C#</span><span class="skill">R</span><span class="skill">MATLAB</span><span class="skill">Haskell</span><span class="skill">TypeScript</span></div>
         </div></div>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <p>© William Dennis · Built from <a href="https://github.com/wd7512/home/blob/main/cv.yaml">cv.yaml</a></p>
+    <p>© William Dennis · Built from <a href="https://github.com/wd7512/home/blob/main/content/">Markdown content</a></p>
   </div>
 </footer>
 
