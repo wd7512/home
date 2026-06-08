@@ -1,5 +1,5 @@
 ---
-title: "A Framework for Developing Robust Machine Learning Models in Harsh Environments A Review of CNN Design Choices"
+title: "A Framework for Developing Robust Machine Learning Models in Harsh Environments: A Review of CNN Design Choices"
 authors: William Dennis and James Pope
 venue: "ICAART 2025 (17th International Conference on Agents and Artificial Intelligence)"
 date: Feb 2025
