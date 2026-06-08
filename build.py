@@ -321,13 +321,7 @@ def build_html() -> str:
     .btn-outline {{ border: 1px solid var(--border); color: var(--text); }}
     .btn-outline:hover {{ border-color: var(--text-muted); text-decoration: none; }}
 
-    .card {{
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      transition: border-color 0.15s;
-    }}
+    .card {{ background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; transition: border-color 0.15s; }}
     .card:hover {{ border-color: var(--text-dim); }}
     .card h3 {{ font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }}
     .card h4 {{ font-size: 1rem; font-weight: 600; }}
