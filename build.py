@@ -7,8 +7,6 @@ Usage:
 """
 
 import argparse
-import glob
-import os
 import re
 from pathlib import Path
 
@@ -51,7 +49,7 @@ def build_html() -> str:
     # Projects (research + personal mixed — research projects have "links" in meta)
     all_projects = load_section("projects")
     research_projects = [(m, b) for m, b in all_projects if "links" in m]
-    personal_projects = [(m, b) for m, b in all_projects if "link" in m and "links" not in m]
+    personal_projects = [(m, b) for m, b in all_projects if "links" not in m]
 
     # Publications
     publications = load_section("publications")
@@ -98,8 +96,8 @@ def build_html() -> str:
     for meta, body in research_projects:
         tags = "".join(f'<span class="tag">{t}</span>' for t in meta.get("tags", []))
         links = "".join(
-            f'<a href="{l["url"]}" class="link-btn" target="_blank" rel="noopener">{l["label"]}</a>'
-            for l in meta.get("links", [])
+            f'<a href="{link["url"]}" class="link-btn" target="_blank" rel="noopener">{link["label"]}</a>'
+            for link in meta.get("links", [])
         )
         research_items += f"""
         <div class="card">
