@@ -1,0 +1,6 @@
+sections:
+  experience: true
+  education: true
+  research: true
+  personal_projects: false
+  skills: true
